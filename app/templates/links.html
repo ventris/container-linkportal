@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<script>
+  var localStorageKey = "app_state";
+  var saved_state = localStorage.getItem(localStorageKey);
+  var default_state = {
+      {% for kategori in data %}
+          {{kategori}}: true,
+      {% endfor %}
+  }
+  var state = saved_state ? JSON.parse(saved_state) : default_state;
+  $(function() {
+      init();
+      $('.btn').on('click', function() {
+          var circle = $(this).attr('data-circle');
+          toggleCircle(circle, !state[circle]);
+      });
+  });
+  function init() {
+      for(var key in state) {
+          var is_displayed = state[key];
+          console.log(is_displayed);
+          toggleCircle(key, is_displayed);
+      }
+  }
+  function toggleCircle(circle, is_displayed) {
+      if (is_displayed) {
+          $('.'+circle).show()
+          state[circle] = true;
+      } else {
+          $('.'+circle).hide()
+          state[circle] = false;
+      }
+      localStorage.setItem(localStorageKey, JSON.stringify(state));
+  }
+</script>
+
+
+{% for kategori in data|sort %}
+<div class="row">
+  <div class="container purtal-container">
+    <h3 class="purltal-kategori"><button type="button" class="btn btn-sm" data-circle="{{ kategori }}">show/hide</button>  {{ kategori }}</h3>
+    <div class="row justify-content-center">
+      {% for subkategori in data[kategori]|sort %}
+        {% for lank in data[kategori][subkategori] %}
+          <div id="menu" class="{{ kategori }}">
+            <a class="{{ lank['name'] }}" href="{{ lank['link'] }}" alt="{{ lank['name'] }}">
+              {% if lank['type'] == 'svg' -%}
+              <img src="{{ lank['icon'] }}" class="svg link-icon" height="72" width="72"></br>
+              {% elif lank['type'] == 'fa' -%}
+              <i class="fa {{ lank['icon'] }} link-icon" style="font-size:66px;color:#3AABFC;"></i></br>
+              {% elif lank['type'] == 'icon' -%}
+              <img src="{{ lank['icon'] }}" class="link-icon" height="72" width="72"></br>
+              {%- endif %}
+              {{ lank['name'] }}
+            </a>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+{% endblock %}
